@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/DS/app/src/main/res/drawable/bubble.xml" value="0.387" />
+        <entry key="..\:/DS/app/src/main/res/drawable/camera_button.xml" value="0.385" />
+        <entry key="..\:/DS/app/src/main/res/drawable/ic_launcher_background.xml" value="0.123" />
+        <entry key="..\:/DS/app/src/main/res/drawable/ic_send_button.xml" value="0.363" />
+        <entry key="..\:/DS/app/src/main/res/drawable/left_messages.xml" value="0.386" />
+        <entry key="..\:/DS/app/src/main/res/drawable/right_messages.xml" value="0.33" />
+        <entry key="..\:/DS/app/src/main/res/layout/activity_chat.xml" value="0.33" />
+        <entry key="..\:/DS/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/DS/app/src/main/res/layout/activity_topics.xml" value="0.33" />
+        <entry key="..\:/DS/app/src/main/res/layout/left_messages.xml" value="0.25" />
+        <entry key="..\:/DS/app/src/main/res/layout/right_messages.xml" value="0.33" />
+        <entry key="..\:/DS/app/src/main/res/layout/topics.xml" value="0.2644927536231884" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

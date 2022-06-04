@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">DS</string>
+    <string name="default_input">Write a message</string>
+    <string name="default_right_message">Hello world!</string>
+    <string name="not_me">Not me</string>
+    <string name="long_message">This is a really long message to check whether it
+    goes to the next line :)</string>
+    <string name="ds">ds</string>
+</resources>

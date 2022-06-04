@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/topic"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:layout_marginTop="5dp"
+    android:orientation="horizontal"
+    android:background="?android:attr/selectableItemBackground">
+
+    <View
+        android:id="@+id/profilePic"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/bubble"
+        android:scaleType="centerInside" />
+
+    <TextView
+        android:id="@+id/topicName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="5dp"
+        android:text="@string/ds"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        tools:ignore="RtlSymmetry" />
+
+</LinearLayout>
