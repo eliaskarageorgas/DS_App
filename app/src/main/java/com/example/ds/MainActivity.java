@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
+    protected void onStart(){
         super.onStart();
         t = new MyThread();
         t.start();
@@ -45,11 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
     public static String getTopic() {
         return topicString;
-    }
+   }
 
     public static void wakeUserThread() {
         t.notify();
     }
 
-    //public static void setUserT
+    public static void setUserTopics(ArrayList<String> userTopics) {
+        MainActivity.userTopics = userTopics;
+    }
 }

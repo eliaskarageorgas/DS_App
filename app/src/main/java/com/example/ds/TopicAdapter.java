@@ -49,4 +49,8 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
                 Intent chat = new Intent(view.getContext(), ChatActivity.class);
                 context.startActivity(chat);
             }
-   
+        });
+
+        return listItem;
+    }
+}
