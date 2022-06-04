@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private TopicAdapter topicAdapter;
     private static MyThread t;
+    private static Object lock = new Object();
 
 
     @Override
@@ -45,10 +46,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static String getTopic() {
         return topicString;
-   }
+    }
+
+    public static Object getLock() {
+        return lock;
+    }
 
     public static void wakeUserThread() {
-        t.notify();
+        synchronized (lock) {
+            lock.notify();
+        }
     }
 
     public static void setUserTopics(ArrayList<String> userTopics) {

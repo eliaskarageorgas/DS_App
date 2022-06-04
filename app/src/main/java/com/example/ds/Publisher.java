@@ -27,6 +27,8 @@ public class Publisher extends Thread {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void run() {
         try {
+            outPublisher.writeBoolean(true); // 1P
+            outPublisher.flush();
             push(topicCode);
         } catch (IOException e) {
             e.printStackTrace();

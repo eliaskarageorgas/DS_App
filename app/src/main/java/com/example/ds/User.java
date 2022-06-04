@@ -34,6 +34,7 @@ public class User implements Serializable {
     boolean publisherMode = false;
     private Thread p;
     private Thread c;
+    private Object lock;
 
     public static void main(String[] args) {
         // TODO set IP
@@ -63,6 +64,8 @@ public class User implements Serializable {
             boolean disconnect = false;
             while (!disconnect) {
                 while (true) {
+                    lock = MainActivity.getLock();
+
                     outUser.writeInt(id); // 1U
                     outUser.flush();
 
@@ -72,10 +75,7 @@ public class User implements Serializable {
                     outUser.writeBoolean(firstConnection); // 2U
                     outUser.flush();
 
-                    Log.d("User","Before getTopic");
                     topicCode = getTopic();
-                    Log.d("User", String.valueOf(topicCode));
-                    Log.d("User", topicString);
                     outUser.writeObject(topicString); // 3U
                     outUser.flush();
 
@@ -117,25 +117,15 @@ public class User implements Serializable {
 
                 while (true) {
                     if (topicCode != 81) {
-                        publisherMode = false;
-                        Scanner s = new Scanner(System.in);
-                        System.out.println("Press 'P' to enter publisher mode.\n" +
-                                "Press anything else if you don't want to enter publisher mode:");
-                        String publisherInput = s.nextLine();
-                        if (publisherInput.equals("P"))
-                            publisherMode = true;
-
-                        outPublisher.writeBoolean(publisherMode); // 1P
-                        outPublisher.flush();
+                        // Check whether the button was pressed
                         if (publisherMode) {
                             p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
                                     outPublisher, inPublisher, id);
                             p.start();
                             p.join();
                         }
-                        System.out.println("Press 'T' if you want to connect to a different topic.\n" +
-                                "Press anything else if you want to remain in the same topic:");
-                        String input = s.nextLine();
+                        // Check if the user pressed back
+                        String input = null;
                         boolean newTopic = false;
                         switch (input) {
                             case "T":
@@ -194,10 +184,10 @@ public class User implements Serializable {
 
     // Create a hash code for the given topic
     private int getTopic() throws InterruptedException {
-        Thread.currentThread().wait();
-        Log.d("getTopic", "Before getTopic");
+        synchronized (lock) {
+            lock.wait();
+        }
         topicString = MainActivity.getTopic();
-        Log.d("getTopic", topicString);
         return topicString.hashCode();
     }
 
