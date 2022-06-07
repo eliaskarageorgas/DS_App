@@ -15,6 +15,7 @@ import java.net.*;
 import java.util.regex.Pattern;
 
 public class Publisher extends Thread {
+    private String text;
     private String brokerIp;
     private int brokerPort;
     private Socket requestSocketPublisher;
@@ -39,12 +40,10 @@ public class Publisher extends Thread {
     private void push(int topicCode) throws IOException {
         outPublisher.writeInt(topicCode); // 2P
         outPublisher.flush();
-        Scanner s = new Scanner(System.in);
-        System.out.println("Enter the path of the file: ");
-        String path = s.nextLine();
-        path_split = path.split(Pattern.quote(FileSystems.getDefault().getSeparator()));
-        File file = new File(path);
-        byte[] data = fileToByteArray(file);
+//        path_split = path.split(Pattern.quote(FileSystems.getDefault().getSeparator()));
+//        File file = new File(path);
+//        byte[] data = fileToByteArray(file);
+        byte[] data = text.getBytes(StandardCharsets.UTF_8);
         ArrayList<byte[]> chunks = createChunks(data);
         createInfoChunks(chunks.size());
         for (byte[] chunk: chunks) {
@@ -99,7 +98,7 @@ public class Publisher extends Thread {
     }
 
     Publisher(String ip, int port, int topicCode, Socket requestSocket,
-              ObjectOutputStream out, ObjectInputStream in, int id) {
+              ObjectOutputStream out, ObjectInputStream in, int id, String text) {
         this.brokerIp = ip;
         this.brokerPort = port;
         this.topicCode = topicCode;
@@ -107,5 +106,6 @@ public class Publisher extends Thread {
         this.outPublisher = out;
         this.inPublisher = in;
         this.id = id;
+        this.text = text;
     }
 }

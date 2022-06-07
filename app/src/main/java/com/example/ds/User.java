@@ -1,7 +1,5 @@
 package com.example.ds;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,11 +8,13 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Scanner;
 
 public class User implements Serializable {
     private static int brokerPort;
     private static String brokerIp;
+    private static boolean backButton = false;
+    private static boolean sendButton = false;
+    private static String text;
     private String ip;
     private int port;
     private int id;
@@ -110,40 +110,40 @@ public class User implements Serializable {
                     }
                 }
 
-                if (topicCode != 81) {
-                    c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer);
-                    c.start();
-                }
+                c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer);
+                c.start();
 
                 while (true) {
-                    if (topicCode != 81) {
-                        // Check whether the button was pressed
-                        if (publisherMode) {
-                            p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
-                                    outPublisher, inPublisher, id);
-                            p.start();
-                            p.join();
-                        }
-                        // Check if the user pressed back
-                        String input = null;
-                        boolean newTopic = false;
-                        switch (input) {
-                            case "T":
-                                firstConnection = true;
-                                newTopic = true;
-                                outUser.writeObject(input); // 7U
-                                outUser.flush();
-                                break;
-                            default:
-                                outUser.writeObject(input); // 7U
-                                outUser.flush();
-                        }
-                        if (newTopic) {
-                            c.interrupt();
-                            break;
-                        }
-                    } else
+                    // Check whether the button was pressed
+                    if (sendButton) {
+                        sendButton = false;
+                        // make publisherMode true
+                        publisherMode = true;
+                    }
+                    if (publisherMode) {
+                        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
+                                outPublisher, inPublisher, id, text);
+                        p.start();
+                        p.join();
+                        publisherMode = false;
+                    }
+                    boolean newTopic = false;
+                    // Check if the user pressed back
+                    if (backButton) {
+                        backButton = false;
+                        firstConnection = true;
+                        newTopic = true;
+                        outUser.writeObject(true); // 7U
+                        outUser.flush();
+                    } else {
+                        outUser.writeObject(false); // 7U
+                        outUser.flush();
+                    }
+
+                    if (newTopic) {
+                        c.interrupt();
                         break;
+                    }
                 }
                 // If the consumer thread is still alive (waiting for an input in the receiveData function)
                 // and we try to close it an error will be produced. In order to avoid the error
@@ -227,9 +227,24 @@ public class User implements Serializable {
         }
     }
 
+    public static void setSendButton(boolean sendButton) {
+        User.sendButton = sendButton;
+    }
+
+    public static void setBackButton(boolean backButton) {
+        User.backButton = backButton;
+    }
+
+    public static void setInput(String text) {
+        User.text = text;
+    }
+
     public User(String ip, int port, int id) {
         this.ip = ip;
         this.port = port;
         this.id = id;
     }
 }
+
+
+// Check if the user wants to exit the app
