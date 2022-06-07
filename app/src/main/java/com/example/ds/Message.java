@@ -3,10 +3,10 @@ package com.example.ds;
 public class Message {
 
     private String text;
-    private String sender;
+    private int sender;
     private String senderColour;
 
-    public Message(String text, String sender, String senderColor) {
+    public Message(String text, int sender, String senderColor) {
         this.text = text;
         this.sender = sender;
         this.senderColour = senderColor;
@@ -24,11 +24,11 @@ public class Message {
         this.text = text;
     }
 
-    public String getSender() {
+    public int getSender() {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(int sender) {
         this.sender = sender;
     }
 

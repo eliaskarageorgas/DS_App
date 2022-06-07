@@ -53,9 +53,9 @@ public class Publisher extends Thread {
     }
 
     private void createInfoChunks(int blockCount) throws IOException {
-        byte[] file_name = path_split[path_split.length-1].getBytes(StandardCharsets.UTF_8);
-        outPublisher.writeObject(file_name); // 3P
-        outPublisher.flush();
+//        byte[] file_name = path_split[path_split.length-1].getBytes(StandardCharsets.UTF_8);
+//        outPublisher.writeObject(file_name); // 3P
+//        outPublisher.flush();
         byte[] blockCountChunk = ByteBuffer.allocate(Integer.BYTES).putInt(blockCount).array();
         outPublisher.writeObject(blockCountChunk); // 4P
         outPublisher.flush();
@@ -65,16 +65,16 @@ public class Publisher extends Thread {
     }
 
     // Convert file to byte array
-    private byte[] fileToByteArray(File file) throws IOException {
-        FileInputStream fl = new FileInputStream(file);
-        byte[] data = new byte[(int)file.length()];
-        fl.read(data);
-        fl.close();
-        return data;
-    }
+//    private byte[] fileToByteArray(File file) throws IOException {
+//        FileInputStream fl = new FileInputStream(file);
+//        byte[] data = new byte[(int)file.length()];
+//        fl.read(data);
+//        fl.close();
+//        return data;
+//    }
 
     // From the byte array create the chunks to be sent to the broker
-    private ArrayList<byte[]> createChunks(byte[] data) throws IOException {
+    private ArrayList<byte[]> createChunks(byte[] data) {
         int blockSize = 512 * 1024;
         ArrayList<byte[]> listOfChunks = new ArrayList<>();
         int blockCount = (data.length + blockSize - 1) / blockSize;

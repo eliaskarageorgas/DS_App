@@ -1,17 +1,20 @@
 package com.example.ds;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String topicString = "ds";
+    static String topicString;
     private static ArrayList<String> userTopics;
-
     private ListView listView;
     private TopicAdapter topicAdapter;
     private static MyThread t;
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_topics);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onStart(){
         super.onStart();
@@ -32,8 +36,15 @@ public class MainActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.topicsListView);
         ArrayList<Topic> topicList = new ArrayList<>();
-        topicList.add(new Topic("ds", "#dc7bff"));
-        topicList.add(new Topic("xontros", "#0925b3"));
+        Random rand = new Random();
+        for (String topic: userTopics) {
+            float r = rand.nextFloat();
+            float g = rand.nextFloat();
+            float b = rand.nextFloat();
+            int intColor = Color.rgb(r, g, b);
+            String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
+            topicList.add(new Topic(topic, stringColor));
+        }
         topicAdapter = new TopicAdapter(this, topicList);
         listView.setAdapter(topicAdapter);
     }
@@ -52,13 +63,15 @@ public class MainActivity extends AppCompatActivity {
         return lock;
     }
 
-    public static void wakeUserThread() {
+    public static void wakeUserThread(String topicName) {
         synchronized (lock) {
             lock.notify();
+            topicString = topicName;
         }
     }
 
     public static void setUserTopics(ArrayList<String> userTopics) {
+        System.out.println("here");
         MainActivity.userTopics = userTopics;
     }
 }

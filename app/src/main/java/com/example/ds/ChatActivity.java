@@ -4,12 +4,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class ChatActivity extends AppCompatActivity {
+
+    private static ArrayList<Message> messageList = new ArrayList<>();
+    private MessageAdapter messageAdapter;
+    private ListView listView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,10 +39,19 @@ public class ChatActivity extends AppCompatActivity {
                 User.setInput(text);
             }
         });
+        listView = findViewById(R.id.messages_view);
+        messageAdapter = new MessageAdapter(this, messageList);
+        listView.setAdapter(messageAdapter);
     }
 
     @Override
     public void onBackPressed() {
         User.setBackButton(true);
     }
+
+    public static void newMessage(Message message) {
+        messageList.add(message);
+    }
 }
+
+// Create specific color for each user

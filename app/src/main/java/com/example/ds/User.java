@@ -70,6 +70,7 @@ public class User implements Serializable {
                     outUser.flush();
 
                     userTopics = (ArrayList<String>) inUser.readObject();
+                    System.out.println(userTopics);
                     MainActivity.setUserTopics(userTopics);
 
                     outUser.writeBoolean(firstConnection); // 2U
@@ -110,7 +111,7 @@ public class User implements Serializable {
                     }
                 }
 
-                c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer);
+                c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id);
                 c.start();
 
                 while (true) {

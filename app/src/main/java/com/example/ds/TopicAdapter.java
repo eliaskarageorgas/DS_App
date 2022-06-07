@@ -31,7 +31,7 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if(listItem == null)
-            listItem = LayoutInflater.from(context).inflate(R.layout.topic,parent,false);
+            listItem = LayoutInflater.from(context).inflate(R.layout.topic, parent,false);
 
         Topic currentTopic = topicsList.get(position);
 
@@ -45,7 +45,7 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
         listItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.wakeUserThread();
+                MainActivity.wakeUserThread(currentTopic.getTopicName());
                 Intent chat = new Intent(view.getContext(), ChatActivity.class);
                 context.startActivity(chat);
             }
