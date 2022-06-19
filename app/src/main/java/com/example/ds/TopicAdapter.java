@@ -45,8 +45,8 @@ public class TopicAdapter extends ArrayAdapter<Topic> {
         listItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.wakeUserThread(currentTopic.getTopicName());
-                Intent chat = new Intent(view.getContext(), ChatActivity.class);
+                TopicsActivity.wakeUserThread(currentTopic.getTopicName());
+                Intent chat = new Intent(v.getContext(), ChatActivity.class);
                 context.startActivity(chat);
             }
         });

@@ -1,5 +1,7 @@
 package com.example.ds;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,22 +19,22 @@ public class User implements Serializable {
     private static String text;
     private String ip;
     private int port;
-    private int id;
+    private static int id;
     private Socket requestSocketUser;
-    private Socket requestSocketPublisher;
+    private static Socket requestSocketPublisher;
     private Socket requestSocketConsumer;
     private ObjectOutputStream outUser;
     private ObjectInputStream inUser;
-    private ObjectOutputStream outPublisher;
-    private ObjectInputStream inPublisher;
+    static private ObjectOutputStream outPublisher;
+    static private ObjectInputStream inPublisher;
     private ObjectOutputStream outConsumer;
     private ObjectInputStream inConsumer;
     private ArrayList<String> userTopics;
-    private int topicCode;
+    private static int topicCode;
     private String topicString;
     private boolean firstConnection = true;
-    boolean publisherMode = false;
-    private Thread p;
+    static boolean publisherMode = false;
+    static private Thread p;
     private Thread c;
     private Object lock;
 
@@ -51,6 +53,7 @@ public class User implements Serializable {
 
     private void connect() {
         try {
+            Log.d("User", "Connect");
             requestSocketUser = new Socket(brokerIp, brokerPort);
             requestSocketPublisher = new Socket(brokerIp, brokerPort);
             requestSocketConsumer = new Socket(brokerIp, brokerPort);
@@ -64,14 +67,13 @@ public class User implements Serializable {
             boolean disconnect = false;
             while (!disconnect) {
                 while (true) {
-                    lock = MainActivity.getLock();
+                    lock = TopicsActivity.getLock();
 
                     outUser.writeInt(id); // 1U
                     outUser.flush();
 
                     userTopics = (ArrayList<String>) inUser.readObject();
-                    System.out.println(userTopics);
-                    MainActivity.setUserTopics(userTopics);
+                    TopicsActivity.setUserTopics(userTopics);
 
                     outUser.writeBoolean(firstConnection); // 2U
                     outUser.flush();
@@ -116,24 +118,16 @@ public class User implements Serializable {
 
                 while (true) {
                     // Check whether the button was pressed
-                    if (sendButton) {
-                        sendButton = false;
-                        // make publisherMode true
-                        publisherMode = true;
-                    }
-                    if (publisherMode) {
-                        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
-                                outPublisher, inPublisher, id, text);
-                        p.start();
-                        p.join();
-                        publisherMode = false;
-                    }
+                    if (backButton)
+                        System.out.println("Back button " + backButton);
                     boolean newTopic = false;
                     // Check if the user pressed back
                     if (backButton) {
                         backButton = false;
                         firstConnection = true;
+                        sendButton = false;
                         newTopic = true;
+                        System.out.println("Not here");
                         outUser.writeObject(true); // 7U
                         outUser.flush();
                     } else {
@@ -185,10 +179,10 @@ public class User implements Serializable {
 
     // Create a hash code for the given topic
     private int getTopic() throws InterruptedException {
-        synchronized (lock) {
+        synchronized(lock) {
             lock.wait();
         }
-        topicString = MainActivity.getTopic();
+        topicString = TopicsActivity.getTopic();
         return topicString.hashCode();
     }
 
@@ -228,8 +222,12 @@ public class User implements Serializable {
         }
     }
 
-    public static void setSendButton(boolean sendButton) {
-        User.sendButton = sendButton;
+    public static void SendButton() throws InterruptedException {
+        // make publisherMode true
+        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
+                outPublisher, inPublisher, id, text);
+        p.start();
+        p.join();
     }
 
     public static void setBackButton(boolean backButton) {

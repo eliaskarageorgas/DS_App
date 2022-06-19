@@ -2,6 +2,7 @@ package com.example.ds;
 
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -100,6 +101,7 @@ public class Consumer extends Thread implements Serializable {
         } else {
             m = new Message(messageText);
         }
+        Log.d("Consumer", m.getText());
         ChatActivity.newMessage(m);
     }
 

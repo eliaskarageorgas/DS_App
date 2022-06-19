@@ -1,5 +1,6 @@
 package com.example.ds;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -17,6 +18,7 @@ public class ChatActivity extends AppCompatActivity {
     private static ArrayList<Message> messageList = new ArrayList<>();
     private MessageAdapter messageAdapter;
     private ListView listView;
+    private Context context;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,9 +36,13 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                User.setSendButton(true);
-                String text = messageBox.getText().toString();
-                User.setInput(text);
+                try {
+                    String text = messageBox.getText().toString();
+                    User.setInput(text);
+                    User.SendButton();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
         listView = findViewById(R.id.messages_view);
@@ -47,6 +53,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         User.setBackButton(true);
+        super.onBackPressed();
     }
 
     public static void newMessage(Message message) {

@@ -39,8 +39,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             else
                 listItem = LayoutInflater.from(context).inflate(R.layout.right_messages, parent,false);
 
-
-
         if (currentMessage.getSender() == 1) {
             View view = listItem.findViewById(R.id.profilePic);
             Drawable bubble = view.getBackground();
