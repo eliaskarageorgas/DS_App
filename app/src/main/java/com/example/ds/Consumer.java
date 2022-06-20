@@ -40,9 +40,7 @@ public class Consumer extends Thread implements Serializable {
     private void receiveData() throws IOException, ClassNotFoundException {
         pointerChunk = history.size();
         System.out.println("\033[3mWaiting new message!\033[0m");
-//        byte[] fileNameChunk = (byte[]) inConsumer.readObject(); // 4.1C
-//        if (fileNameChunk != null)
-//            history.add(fileNameChunk);
+
         byte[] blockCountChunk = (byte[]) inConsumer.readObject(); // 4.2C
         if (blockCountChunk != null)
             history.add(blockCountChunk);
@@ -51,19 +49,16 @@ public class Consumer extends Thread implements Serializable {
             history.add(publisherId);
 
         int blockCount = 0;
-        //if (fileNameChunk != null) {
-            // Converting blockCount to integer
-            for (byte b : blockCountChunk)
-                blockCount += b;
-
-            // Saving chunks in the corresponding ArrayList
-            for (int i = 1; i <= blockCount; i++) {
-                byte[] chunk = (byte[]) inConsumer.readObject(); // 4.4C
-                history.add(chunk);
-            }
-            recreateMessage(blockCount);
-            System.out.println("\033[3mNew message fetched successfully!\033[0m");
-        //}
+        // Converting blockCount to integer
+        for (byte b : blockCountChunk)
+            blockCount += b;
+        // Saving chunks in the corresponding ArrayList
+        for (int i = 1; i <= blockCount; i++) {
+            byte[] chunk = (byte[]) inConsumer.readObject(); // 4.4C
+            history.add(chunk);
+        }
+        recreateMessage(blockCount);
+        System.out.println("\033[3mNew message fetched successfully!\033[0m");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -105,28 +100,6 @@ public class Consumer extends Thread implements Serializable {
         ChatActivity.newMessage(m);
     }
 
-//    private void recreateFile(int blockCount, byte[] fileNameChunk) throws IOException {
-//        String fileName = new String(fileNameChunk, StandardCharsets.UTF_8);
-//        // TODO change path
-//        String filepath = "D:\\DS\\app\\src\\recreated_files\\" + fileName;
-//        File file = new File(filepath);
-//        OutputStream stream = new FileOutputStream(file);
-//        byte[] completeFile = new byte[512 * 1024 * blockCount];
-//        int i;
-//        int j = 0;
-//        pointerChunk += 3;
-//        for (i = pointerChunk; i < pointerChunk + blockCount; i++) {
-//            for (byte b: history.get(i)) {
-//                completeFile[j] = b;
-//                j++;
-//            }
-//        }
-//        pointerChunk = i;
-//
-//        stream.write(completeFile);
-//        stream.close();
-//    }
-
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void receiveAllData() throws IOException, ClassNotFoundException {
         boolean isEmpty = inConsumer.readBoolean(); // 1C
@@ -147,13 +120,6 @@ public class Consumer extends Thread implements Serializable {
         int currentChunk = 0;
         Random rand = new Random();
         while (currentChunk < history.size()) {
-//            String fileName = new String(history.get(currentChunk), StandardCharsets.UTF_8);
-//            // TODO change path
-//            String filepath = "D:\\DS\\app\\src\\recreated_files\\" + fileName;
-//            File file = new File(filepath);
-//            OutputStream stream = new FileOutputStream(file);
-//            currentChunk++;
-
             // Converting blockCount to integer
             int blockCount = 0;
             for (byte b : history.get(currentChunk))
@@ -167,7 +133,6 @@ public class Consumer extends Thread implements Serializable {
             currentChunk++;
 
             int j = 0;
-//            byte[] completeFile = new byte[512 * 1024 * blockCount];
             byte[] completeMessage = new byte[512 * 1024 * blockCount];
             for (int i = currentChunk; i < currentChunk + blockCount; i++) {
                 for (byte b: history.get(i)) {
@@ -188,8 +153,6 @@ public class Consumer extends Thread implements Serializable {
             } else {
                 m = new Message(messageText);
             }
-//            stream.write(completeFile);
-//            stream.close();
             currentChunk += blockCount;
             ChatActivity.newMessage(m);
         }

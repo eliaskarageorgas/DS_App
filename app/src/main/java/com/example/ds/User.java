@@ -14,8 +14,7 @@ import java.util.Objects;
 public class User implements Serializable {
     private static int brokerPort;
     private static String brokerIp;
-    private static boolean backButton = false;
-    private static boolean sendButton = false;
+    private static volatile boolean backButton = false;
     private static String text;
     private String ip;
     private int port;
@@ -33,7 +32,7 @@ public class User implements Serializable {
     private static int topicCode;
     private String topicString;
     private boolean firstConnection = true;
-    static boolean publisherMode = false;
+    static volatile boolean publisherMode = false;
     static private Thread p;
     private Thread c;
     private Object lock;
@@ -64,15 +63,16 @@ public class User implements Serializable {
             outConsumer = new ObjectOutputStream(requestSocketConsumer.getOutputStream());
             inConsumer = new ObjectInputStream(requestSocketConsumer.getInputStream());
             System.out.println("\033[3mConnected to broker: " + brokerIp + " on port: " + brokerPort + "\033[0m");
-            boolean disconnect = false;
-            while (!disconnect) {
+            while (true) {
                 while (true) {
                     lock = TopicsActivity.getLock();
 
                     outUser.writeInt(id); // 1U
                     outUser.flush();
+                    System.out.println("Id " + id);
 
                     userTopics = (ArrayList<String>) inUser.readObject();
+                    // Send the topics to the TopicsActivity to show them on the screen
                     TopicsActivity.setUserTopics(userTopics);
 
                     outUser.writeBoolean(firstConnection); // 2U
@@ -88,38 +88,13 @@ public class User implements Serializable {
                     outUser.flush();
                     System.out.println(topicCode);
 
-                    //boolean registeredUser = inUser.readBoolean(); // 5U
-
-//                    if (!registeredUser) {
-//                        System.out.println("\033[3mYou are unable to access the requested topic." +
-//                                "(not registered user)\033[0m");
-//                        continue;
-//                    }
-
-                    Log.d("User", "0");
-
                     // Get broker object which contains the requested topic
-                    String matchedBrokerIp = (String) inUser.readObject(); // 6U
-                    System.out.println("here");
-                    int matchedBrokerPort = inUser.readInt();
+                    String matchedBrokerIp = (String) inUser.readObject(); // 5U
+                    int matchedBrokerPort = inUser.readInt(); // 6U
+                    Log.d("User", String.valueOf(matchedBrokerPort));
 
-                    Log.d("User", "1");
-
-                    // If the user pressed "Q" when asked to enter the topic disconnect
-                    if (topicCode == 81) {
-                        if (c != null)
-                            c.interrupt();
-                        disconnect = true;
-                        break;
-                    }
-
-                    Log.d("User", "2");
-                    if (matchedBrokerPort == 0)
-                        System.out.println("\033[3mThe topic \"" + topicString + "\" doesn't exist.\033[0m");
-                    else {
-                        connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
-                        break;
-                    }
+                    connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
+                    break;
                 }
 
                 c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id);
@@ -129,21 +104,19 @@ public class User implements Serializable {
                     if (!publisherMode) {
                         outPublisher.writeBoolean(false);
                         outPublisher.flush();
-                        publisherMode = false;
                     }
-                    // Check whether the button was pressed
+
                     boolean newTopic = false;
                     // Check if the user pressed back
                     if (backButton) {
                         backButton = false;
                         firstConnection = true;
-                        sendButton = false;
                         newTopic = true;
-                        System.out.println("Not here");
-                        outUser.writeObject(true); // 7U
+                        System.out.println("Back button on second while");
+                        outUser.writeBoolean(true); // 7U
                         outUser.flush();
                     } else {
-                        outUser.writeObject(false); // 7U
+                        outUser.writeBoolean(false); // 7U
                         outUser.flush();
                     }
 
@@ -192,11 +165,32 @@ public class User implements Serializable {
     // Create a hash code for the given topic
     private int getTopic() throws InterruptedException {
         synchronized(lock) {
+            // Wait till the user clicks on a topic
             Log.d("User", "lock");
             lock.wait();
         }
         topicString = TopicsActivity.getTopic();
         return topicString.hashCode();
+    }
+
+
+
+    public static void SendButton() throws InterruptedException {
+        // Start publisher thread
+        publisherMode = true;
+        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
+                outPublisher, inPublisher, id, text);
+        p.start();
+        p.join();
+    }
+
+    public static void setBackButton(boolean backButton) {
+        User.backButton = backButton;
+        System.out.println("Back button pressed");
+    }
+
+    public static void setInput(String text) {
+        User.text = text;
     }
 
     // Check if the current broker is the correct one
@@ -235,32 +229,15 @@ public class User implements Serializable {
         }
     }
 
-    public static void SendButton() throws InterruptedException {
-        // make publisherMode true
-        publisherMode = true;
-        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
-                outPublisher, inPublisher, id, text);
-        p.start();
-        p.join();
-    }
-
-    public static void setBackButton(boolean backButton) {
-        User.backButton = backButton;
-        System.out.println("Back button " + backButton);
-    }
-
-    public static void setInput(String text) {
-        User.text = text;
-    }
-
     public User(String ip, int port, int id) {
         this.ip = ip;
         this.port = port;
-        this.id = id;
+        User.id = id;
     }
 }
 
 
-// Error on BrokerActions when Publisher sends message
-// Message not shown when send as stand alone
+// Error when back button is pressed
+// Messages appear only after keyboard is closed
+// Keyboard doesn't close when a message is send
 // Check if the user wants to exit the app

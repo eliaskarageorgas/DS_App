@@ -24,7 +24,6 @@ public class Publisher extends Thread {
     private ObjectInputStream inPublisher;
     private int topicCode;
     private int id;
-    private String[] path_split;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void run() {
@@ -41,9 +40,6 @@ public class Publisher extends Thread {
     private void push(int topicCode) throws IOException {
         outPublisher.writeInt(topicCode); // 2P
         outPublisher.flush();
-//        path_split = path.split(Pattern.quote(FileSystems.getDefault().getSeparator()));
-//        File file = new File(path);
-//        byte[] data = fileToByteArray(file);
         byte[] data = text.getBytes(StandardCharsets.UTF_8);
         ArrayList<byte[]> chunks = createChunks(data);
         createInfoChunks(chunks.size());
@@ -54,9 +50,6 @@ public class Publisher extends Thread {
     }
 
     private void createInfoChunks(int blockCount) throws IOException {
-//        byte[] file_name = path_split[path_split.length-1].getBytes(StandardCharsets.UTF_8);
-//        outPublisher.writeObject(file_name); // 3P
-//        outPublisher.flush();
         byte[] blockCountChunk = ByteBuffer.allocate(Integer.BYTES).putInt(blockCount).array();
         outPublisher.writeObject(blockCountChunk); // 4P
         outPublisher.flush();
@@ -64,15 +57,6 @@ public class Publisher extends Thread {
         outPublisher.writeObject(publisherId); // 5P
         outPublisher.flush();
     }
-
-    // Convert file to byte array
-//    private byte[] fileToByteArray(File file) throws IOException {
-//        FileInputStream fl = new FileInputStream(file);
-//        byte[] data = new byte[(int)file.length()];
-//        fl.read(data);
-//        fl.close();
-//        return data;
-//    }
 
     // From the byte array create the chunks to be sent to the broker
     private ArrayList<byte[]> createChunks(byte[] data) {
