@@ -2,6 +2,7 @@ package com.example.ds;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 import androidx.annotation.RequiresApi;
@@ -62,6 +63,7 @@ public class TopicsActivity extends AppCompatActivity {
 
     public static void wakeUserThread(String topicName) {
         synchronized (lock) {
+            Log.d("TopicsActivity", "lock");
             lock.notify();
             topicString = topicName;
         }
