@@ -19,7 +19,7 @@ import java.util.Objects;
 public class MessageAdapter extends ArrayAdapter<Message> {
 
     private Context context;
-    private ArrayList<Message> messagesList;
+    private static ArrayList<Message> messagesList;
 
     public MessageAdapter(@NonNull Context context, ArrayList<Message> list) {
         super(context, 0, list);
@@ -52,5 +52,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         text.setText(currentMessage.getText());
 
         return listItem;
+    }
+
+    public static void backButtonPressed() {
+        messagesList.clear();
     }
 }

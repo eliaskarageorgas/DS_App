@@ -45,8 +45,8 @@ public class TopicsActivity extends AppCompatActivity {
             float r = rand.nextFloat();
             float g = rand.nextFloat();
             float b = rand.nextFloat();
-            //int intColor = Color.rgb(r, g, b);
-            //String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
+//            int intColor = Color.rgb(r, g, b);
+//            String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
             topicList.add(new Topic(topic, "#c615e2"));
         }
         topicAdapter = new TopicAdapter(this, topicList);

@@ -1,6 +1,9 @@
 package com.example.ds;
 
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,6 +18,7 @@ public class User implements Serializable {
     private static int brokerPort;
     private static String brokerIp;
     private static volatile boolean backButton = false;
+    private static volatile boolean sendButtonPressed = false;
     private static String text;
     private String ip;
     private int port;
@@ -32,12 +36,13 @@ public class User implements Serializable {
     private static int topicCode;
     private String topicString;
     private boolean firstConnection = true;
-    static volatile boolean publisherMode = false;
-    static private Thread p;
+    private Thread p;
     private Thread c;
     private Object lock;
     private int counter = 0;
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static void main(String[] args) {
         // TODO set IP
         brokerIp = "192.168.68.108";
@@ -51,6 +56,7 @@ public class User implements Serializable {
         u.connect();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void connect() {
         try {
             Log.d("User", "Connect");
@@ -107,16 +113,19 @@ public class User implements Serializable {
 
                 c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id);
                 c.start();
+                p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
+                        outPublisher, inPublisher, id);
+                p.start();
 
                 Log.d("User", "Second while");
                 while (true) {
-                    if (!publisherMode) {
-                        outPublisher.writeBoolean(false);
-                        outPublisher.flush();
-                    }
-
                     boolean newTopic = false;
                     // Check if the user pressed back
+                    if (sendButtonPressed) {
+                        Publisher.messageSend(text);
+                        sendButtonPressed = false;
+                    }
+
                     if (backButton) {
                         backButton = false;
                         firstConnection = true;
@@ -131,6 +140,7 @@ public class User implements Serializable {
 
                     if (newTopic) {
                         c.interrupt();
+                        p.interrupt();
                         break;
                     }
                 }
@@ -182,22 +192,16 @@ public class User implements Serializable {
         return topicString.hashCode();
     }
 
-    public static void SendButton() throws InterruptedException {
-        // Start publisher thread
-        publisherMode = true;
-        p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
-                outPublisher, inPublisher, id, text);
-        p.start();
-        p.join();
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void SendButton(String text) throws InterruptedException, IOException {
+        User.text = text;
+        User.sendButtonPressed = true;
+        System.out.println("Send button pressed");
     }
 
     public static void setBackButton(boolean backButton) {
         User.backButton = backButton;
         System.out.println("Back button pressed");
-    }
-
-    public static void setInput(String text) {
-        User.text = text;
     }
 
     // Check if the current broker is the correct one
@@ -243,7 +247,7 @@ public class User implements Serializable {
     }
 }
 
-
+// volatile και συνέχεια check
 // Messages appear only after keyboard is closed
 // Keyboard doesn't close when a message is send
 // Check if the user wants to exit the app

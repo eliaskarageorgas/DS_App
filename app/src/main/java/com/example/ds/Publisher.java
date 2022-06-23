@@ -16,28 +16,18 @@ import java.net.*;
 import java.util.regex.Pattern;
 
 public class Publisher extends Thread {
-    private String text;
+    private static String text;
     private String brokerIp;
     private int brokerPort;
     private Socket requestSocketPublisher;
-    private ObjectOutputStream outPublisher;
+    static private ObjectOutputStream outPublisher;
     private ObjectInputStream inPublisher;
-    private int topicCode;
-    private int id;
+    private static int topicCode;
+    private static int id;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void run() {
-        try {
-            outPublisher.writeBoolean(true); // 1P
-            outPublisher.flush();
-            push(topicCode);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void push(int topicCode) throws IOException {
+    private static void push() throws IOException {
+        System.out.println("Pushing");
         outPublisher.writeInt(topicCode); // 2P
         outPublisher.flush();
         byte[] data = text.getBytes(StandardCharsets.UTF_8);
@@ -49,7 +39,7 @@ public class Publisher extends Thread {
         }
     }
 
-    private void createInfoChunks(int blockCount) throws IOException {
+    private static void createInfoChunks(int blockCount) throws IOException {
         byte[] blockCountChunk = ByteBuffer.allocate(Integer.BYTES).putInt(blockCount).array();
         outPublisher.writeObject(blockCountChunk); // 4P
         outPublisher.flush();
@@ -59,7 +49,7 @@ public class Publisher extends Thread {
     }
 
     // From the byte array create the chunks to be sent to the broker
-    private ArrayList<byte[]> createChunks(byte[] data) {
+    private static ArrayList<byte[]> createChunks(byte[] data) {
         int blockSize = 512 * 1024;
         ArrayList<byte[]> listOfChunks = new ArrayList<>();
         int blockCount = (data.length + blockSize - 1) / blockSize;
@@ -82,15 +72,24 @@ public class Publisher extends Thread {
         return listOfChunks;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public static void messageSend(String text) throws IOException {
+        Publisher.text = text;
+        System.out.println("Before 1P");
+        outPublisher.writeBoolean(true); //1P
+        outPublisher.flush();
+        System.out.println("After 1P");
+        push();
+    }
+
     Publisher(String ip, int port, int topicCode, Socket requestSocket,
-              ObjectOutputStream out, ObjectInputStream in, int id, String text) {
+              ObjectOutputStream out, ObjectInputStream in, int id) {
         this.brokerIp = ip;
         this.brokerPort = port;
-        this.topicCode = topicCode;
+        Publisher.topicCode = topicCode;
         this.requestSocketPublisher = requestSocket;
-        this.outPublisher = out;
+        Publisher.outPublisher = out;
         this.inPublisher = in;
-        this.id = id;
-        this.text = text;
+        Publisher.id = id;
     }
 }

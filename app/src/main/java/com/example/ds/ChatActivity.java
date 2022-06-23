@@ -1,6 +1,7 @@
 package com.example.ds;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -9,8 +10,10 @@ import android.widget.ListView;
 
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ChatActivity extends AppCompatActivity {
@@ -18,7 +21,6 @@ public class ChatActivity extends AppCompatActivity {
     private static ArrayList<Message> messageList = new ArrayList<>();
     private MessageAdapter messageAdapter;
     private ListView listView;
-    private Context context;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,13 +36,13 @@ public class ChatActivity extends AppCompatActivity {
 
         ImageButton sendButton = findViewById(R.id.send_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
                 try {
                     String text = messageBox.getText().toString();
-                    User.setInput(text);
-                    User.SendButton();
-                } catch (InterruptedException e) {
+                    User.SendButton(text);
+                } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -53,6 +55,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         User.setBackButton(true);
+        MessageAdapter.backButtonPressed();
         super.onBackPressed();
     }
 
