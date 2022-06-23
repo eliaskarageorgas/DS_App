@@ -36,6 +36,7 @@ public class User implements Serializable {
     static private Thread p;
     private Thread c;
     private Object lock;
+    private int counter = 0;
 
     public static void main(String[] args) {
         // TODO set IP
@@ -88,8 +89,15 @@ public class User implements Serializable {
                     outUser.flush();
                     System.out.println(topicCode);
 
+                    if (counter == 1) {
+                        ArrayList list = (ArrayList) inUser.readObject();
+                        System.out.println(list);
+                    }
+
+                    counter++;
                     // Get broker object which contains the requested topic
                     String matchedBrokerIp = (String) inUser.readObject(); // 5U
+                    Log.d("User", matchedBrokerIp);
                     int matchedBrokerPort = inUser.readInt(); // 6U
                     Log.d("User", String.valueOf(matchedBrokerPort));
 
@@ -100,6 +108,7 @@ public class User implements Serializable {
                 c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id);
                 c.start();
 
+                Log.d("User", "Second while");
                 while (true) {
                     if (!publisherMode) {
                         outPublisher.writeBoolean(false);
@@ -155,7 +164,7 @@ public class User implements Serializable {
                 inConsumer.close();
                 requestSocketPublisher.close();
                 requestSocketConsumer.close();
-                System.out.println("\033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
+                System.out.println("Finally " + " \033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -172,8 +181,6 @@ public class User implements Serializable {
         topicString = TopicsActivity.getTopic();
         return topicString.hashCode();
     }
-
-
 
     public static void SendButton() throws InterruptedException {
         // Start publisher thread
@@ -237,7 +244,6 @@ public class User implements Serializable {
 }
 
 
-// Error when back button is pressed
 // Messages appear only after keyboard is closed
 // Keyboard doesn't close when a message is send
 // Check if the user wants to exit the app

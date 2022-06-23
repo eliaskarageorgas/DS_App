@@ -41,24 +41,26 @@ public class Consumer extends Thread implements Serializable {
         pointerChunk = history.size();
         System.out.println("\033[3mWaiting new message!\033[0m");
 
-        byte[] blockCountChunk = (byte[]) inConsumer.readObject(); // 4.2C
+        byte[] blockCountChunk = (byte[]) inConsumer.readObject(); // 4C
         if (blockCountChunk != null)
             history.add(blockCountChunk);
-        byte[] publisherId = (byte[]) inConsumer.readObject(); // 4.3C
+        byte[] publisherId = (byte[]) inConsumer.readObject(); // 4C
         if (publisherId != null)
             history.add(publisherId);
 
         int blockCount = 0;
         // Converting blockCount to integer
-        for (byte b : blockCountChunk)
-            blockCount += b;
-        // Saving chunks in the corresponding ArrayList
-        for (int i = 1; i <= blockCount; i++) {
-            byte[] chunk = (byte[]) inConsumer.readObject(); // 4.4C
-            history.add(chunk);
+        if (blockCountChunk != null) {
+            for (byte b : blockCountChunk)
+                blockCount += b;
+            // Saving chunks in the corresponding ArrayList
+            for (int i = 1; i <= blockCount; i++) {
+                byte[] chunk = (byte[]) inConsumer.readObject(); // 4C
+                history.add(chunk);
+            }
+            recreateMessage(blockCount);
+            System.out.println("\033[3mNew message fetched successfully!\033[0m");
         }
-        recreateMessage(blockCount);
-        System.out.println("\033[3mNew message fetched successfully!\033[0m");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
