@@ -78,36 +78,41 @@ public class User implements Serializable {
                     outUser.flush();
                     System.out.println("Id " + id);
 
-                    userTopics = (ArrayList<String>) inUser.readObject();
+                    userTopics = (ArrayList<String>) inUser.readObject(); //2U
                     // Send the topics to the TopicsActivity to show them on the screen
                     TopicsActivity.setUserTopics(userTopics);
+                    Log.d("User", "Topics received successfully");
 
-                    outUser.writeBoolean(firstConnection); // 2U
+                    outUser.writeBoolean(firstConnection); // 3U
                     outUser.flush();
                     System.out.println("First Connection " + firstConnection);
 
                     topicCode = getTopic();
-                    outUser.writeObject(topicString); // 3U
+                    outUser.writeObject(topicString); // 4U
                     outUser.flush();
                     Log.d("User", topicString);
 
-                    outUser.writeInt(topicCode); // 4U
+                    outUser.writeInt(topicCode); // 5U
                     outUser.flush();
                     System.out.println(topicCode);
 
-                    if (counter == 1) {
-                        ArrayList list = (ArrayList) inUser.readObject();
-                        System.out.println(list);
-                    }
+//                    if (counter == 1) {
+//                        ArrayList list = (ArrayList) inUser.readObject();
+//                        System.out.println(list);
+//                    }
 
                     counter++;
-                    // Get broker object which contains the requested topic
-                    String matchedBrokerIp = (String) inUser.readObject(); // 5U
-                    Log.d("User", matchedBrokerIp);
-                    int matchedBrokerPort = inUser.readInt(); // 6U
-                    Log.d("User", String.valueOf(matchedBrokerPort));
+                    boolean correctBroker = inUser.readBoolean();
+                    System.out.println("Correct broker " + correctBroker);
+                    if (!correctBroker) {
+                        // Get broker object which contains the requested topic
+                        String matchedBrokerIp = (String) inUser.readObject(); // 6U
+                        Log.d("User", matchedBrokerIp);
+                        int matchedBrokerPort = inUser.readInt(); // 6U
+                        Log.d("User", String.valueOf(matchedBrokerPort));
 
-                    connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
+                        connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
+                    }
                     break;
                 }
 
@@ -124,13 +129,14 @@ public class User implements Serializable {
                     if (sendButtonPressed) {
                         Publisher.messageSend(text);
                         sendButtonPressed = false;
+                        Log.d("User", "Send button on second while");
                     }
 
                     if (backButton) {
                         backButton = false;
                         firstConnection = true;
                         newTopic = true;
-                        System.out.println("Back button on second while");
+                        Log.d("User", "Back button on second while");
                         outUser.writeBoolean(true); // 7U
                         outUser.flush();
                     } else {
@@ -196,18 +202,19 @@ public class User implements Serializable {
     public static void SendButton(String text) throws InterruptedException, IOException {
         User.text = text;
         User.sendButtonPressed = true;
-        System.out.println("Send button pressed");
+        Log.d("User","Send button pressed");
     }
 
     public static void setBackButton(boolean backButton) {
         User.backButton = backButton;
-        System.out.println("Back button pressed");
+        Log.d("User","Back button pressed");
     }
 
     // Check if the current broker is the correct one
     // Otherwise close the current connection and connect to the right one
     private void connectToMatchedBroker(String matchedBrokerIp, int matchedBrokerPort) throws IOException {
         if (!Objects.equals(brokerIp, matchedBrokerIp) || !Objects.equals(brokerPort, matchedBrokerPort)) {
+            counter = 0;
             inUser.close();
             outUser.close();
             inPublisher.close();
@@ -247,7 +254,7 @@ public class User implements Serializable {
     }
 }
 
-// volatile και συνέχεια check
+// allagi topic 2h fora. crasharei o broker
 // Messages appear only after keyboard is closed
 // Keyboard doesn't close when a message is send
 // Check if the user wants to exit the app

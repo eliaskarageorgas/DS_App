@@ -27,7 +27,7 @@ public class Publisher extends Thread {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private static void push() throws IOException {
-        System.out.println("Pushing");
+        Log.d("Publisher", "Push started successfully");
         outPublisher.writeInt(topicCode); // 2P
         outPublisher.flush();
         byte[] data = text.getBytes(StandardCharsets.UTF_8);
@@ -75,10 +75,9 @@ public class Publisher extends Thread {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void messageSend(String text) throws IOException {
         Publisher.text = text;
-        System.out.println("Before 1P");
+        Log.d("Publisher", "Sending message to start actions for publishers.");
         outPublisher.writeBoolean(true); //1P
         outPublisher.flush();
-        System.out.println("After 1P");
         push();
     }
 

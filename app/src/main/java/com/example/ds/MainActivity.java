@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class MyThread extends Thread {
+        @RequiresApi(api = Build.VERSION_CODES.O)
         public void run() {
             User.main(new String[0]);
         }
