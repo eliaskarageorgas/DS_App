@@ -78,14 +78,16 @@ public class User implements Serializable {
                     outUser.flush();
                     System.out.println("Id " + id);
 
-                    userTopics = (ArrayList<String>) inUser.readObject(); //2U
-                    // Send the topics to the TopicsActivity to show them on the screen
-                    TopicsActivity.setUserTopics(userTopics);
-                    Log.d("User", "Topics received successfully");
-
-                    outUser.writeBoolean(firstConnection); // 3U
+                    outUser.writeBoolean(firstConnection); // 2U
                     outUser.flush();
                     System.out.println("First Connection " + firstConnection);
+
+                    if (firstConnection) {
+                        userTopics = (ArrayList<String>) inUser.readObject(); // 3U
+                        // Send the topics to the TopicsActivity to show them on the screen
+                        TopicsActivity.setUserTopics(userTopics);
+                        Log.d("User", "Topics received successfully");
+                    }
 
                     topicCode = getTopic();
                     outUser.writeObject(topicString); // 4U
@@ -100,19 +102,15 @@ public class User implements Serializable {
 //                        ArrayList list = (ArrayList) inUser.readObject();
 //                        System.out.println(list);
 //                    }
+//                    counter++;
 
-                    counter++;
-                    boolean correctBroker = inUser.readBoolean();
-                    System.out.println("Correct broker " + correctBroker);
-                    if (!correctBroker) {
-                        // Get broker object which contains the requested topic
-                        String matchedBrokerIp = (String) inUser.readObject(); // 6U
-                        Log.d("User", matchedBrokerIp);
-                        int matchedBrokerPort = inUser.readInt(); // 6U
-                        Log.d("User", String.valueOf(matchedBrokerPort));
+                    // Get broker object which contains the requested topic
+                    String matchedBrokerIp = (String) inUser.readObject(); // 6U
+                    Log.d("User", matchedBrokerIp);
+                    int matchedBrokerPort = inUser.readInt(); // 6U
+                    Log.d("User", String.valueOf(matchedBrokerPort));
 
-                        connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
-                    }
+                    connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
                     break;
                 }
 
@@ -145,8 +143,11 @@ public class User implements Serializable {
                     }
 
                     if (newTopic) {
+                        Log.d("User", "Going back to main menu");
                         c.interrupt();
                         p.interrupt();
+                        outPublisher.writeBoolean(false); //1P
+                        outPublisher.flush();
                         break;
                     }
                 }
@@ -214,7 +215,7 @@ public class User implements Serializable {
     // Otherwise close the current connection and connect to the right one
     private void connectToMatchedBroker(String matchedBrokerIp, int matchedBrokerPort) throws IOException {
         if (!Objects.equals(brokerIp, matchedBrokerIp) || !Objects.equals(brokerPort, matchedBrokerPort)) {
-            counter = 0;
+//            counter = 0;
             inUser.close();
             outUser.close();
             inPublisher.close();
