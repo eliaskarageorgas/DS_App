@@ -39,8 +39,6 @@ public class User implements Serializable {
     private Thread p;
     private Thread c;
     private Object lock;
-    private int counter = 0;
-
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void main(String[] args) {
@@ -51,7 +49,7 @@ public class User implements Serializable {
         // TODO set port, IP, id manually
         int port = 2100;
         String ip = "192.168.68.108";
-        int id = 0;
+        int id = 1;
         User u = new User(ip, port, id);
         u.connect();
     }
@@ -59,7 +57,7 @@ public class User implements Serializable {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void connect() {
         try {
-            Log.d("User", "Connect");
+//            Log.d("User", "Connect");
             requestSocketUser = new Socket(brokerIp, brokerPort);
             requestSocketPublisher = new Socket(brokerIp, brokerPort);
             requestSocketConsumer = new Socket(brokerIp, brokerPort);
@@ -69,7 +67,7 @@ public class User implements Serializable {
             inPublisher = new ObjectInputStream(requestSocketPublisher.getInputStream());
             outConsumer = new ObjectOutputStream(requestSocketConsumer.getOutputStream());
             inConsumer = new ObjectInputStream(requestSocketConsumer.getInputStream());
-            System.out.println("\033[3mConnected to broker: " + brokerIp + " on port: " + brokerPort + "\033[0m");
+//            System.out.println("\033[3mConnected to broker: " + brokerIp + " on port: " + brokerPort + "\033[0m");
             while (true) {
                 while (true) {
                     lock = TopicsActivity.getLock();
@@ -80,35 +78,29 @@ public class User implements Serializable {
 
                     outUser.writeBoolean(firstConnection); // 2U
                     outUser.flush();
-                    System.out.println("First Connection " + firstConnection);
+//                    System.out.println("First Connection " + firstConnection);
 
                     if (firstConnection) {
                         userTopics = (ArrayList<String>) inUser.readObject(); // 3U
                         // Send the topics to the TopicsActivity to show them on the screen
                         TopicsActivity.setUserTopics(userTopics);
-                        Log.d("User", "Topics received successfully");
+//                        Log.d("User", "Topics received successfully");
                     }
 
                     topicCode = getTopic();
                     outUser.writeObject(topicString); // 4U
                     outUser.flush();
-                    Log.d("User", topicString);
+//                    Log.d("User", topicString);
 
                     outUser.writeInt(topicCode); // 5U
                     outUser.flush();
-                    System.out.println(topicCode);
-
-//                    if (counter == 1) {
-//                        ArrayList list = (ArrayList) inUser.readObject();
-//                        System.out.println(list);
-//                    }
-//                    counter++;
+//                    System.out.println(topicCode);
 
                     // Get broker object which contains the requested topic
                     String matchedBrokerIp = (String) inUser.readObject(); // 6U
-                    Log.d("User", matchedBrokerIp);
+//                    Log.d("User", matchedBrokerIp);
                     int matchedBrokerPort = inUser.readInt(); // 6U
-                    Log.d("User", String.valueOf(matchedBrokerPort));
+//                    Log.d("User", String.valueOf(matchedBrokerPort));
 
                     connectToMatchedBroker(matchedBrokerIp, matchedBrokerPort);
                     break;
@@ -120,21 +112,21 @@ public class User implements Serializable {
                         outPublisher, inPublisher, id);
                 p.start();
 
-                Log.d("User", "Second while");
+//                Log.d("User", "Second while");
                 while (true) {
                     boolean newTopic = false;
                     // Check if the user pressed back
                     if (sendButtonPressed) {
                         Publisher.messageSend(text);
                         sendButtonPressed = false;
-                        Log.d("User", "Send button on second while");
+//                        Log.d("User", "Send button on second while");
                     }
 
                     if (backButton) {
                         backButton = false;
                         firstConnection = true;
                         newTopic = true;
-                        Log.d("User", "Back button on second while");
+//                        Log.d("User", "Back button on second while");
                         outUser.writeBoolean(true); // 7U
                         outUser.flush();
                     } else {
@@ -143,7 +135,7 @@ public class User implements Serializable {
                     }
 
                     if (newTopic) {
-                        Log.d("User", "Going back to main menu");
+//                        Log.d("User", "Going back to main menu");
                         c.interrupt();
                         p.interrupt();
                         outPublisher.writeBoolean(false); //1P
@@ -164,10 +156,10 @@ public class User implements Serializable {
                 }
             }
         } catch (UnknownHostException unknownHost) {
-            System.err.println("\033[3mYou are trying to connect to an unknown host!\033[0m");
+//            System.err.println("\033[3mYou are trying to connect to an unknown host!\033[0m");
         } catch (ClassNotFoundException | IOException e) {
-            System.out.println("\033[3mAn error occurred while trying to connect to host: " + brokerIp + " on port: " +
-                    brokerPort + ". Check the IP address and the port.\033[0m");
+//            System.out.println("\033[3mAn error occurred while trying to connect to host: " + brokerIp + " on port: " +
+//                    brokerPort + ". Check the IP address and the port.\033[0m");
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -181,7 +173,7 @@ public class User implements Serializable {
                 inConsumer.close();
                 requestSocketPublisher.close();
                 requestSocketConsumer.close();
-                System.out.println("Finally " + " \033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
+//                System.out.println("Finally " + " \033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -192,7 +184,7 @@ public class User implements Serializable {
     private int getTopic() throws InterruptedException {
         synchronized(lock) {
             // Wait till the user clicks on a topic
-            Log.d("User", "lock");
+//            Log.d("User", "lock");
             lock.wait();
         }
         topicString = TopicsActivity.getTopic();
@@ -203,19 +195,22 @@ public class User implements Serializable {
     public static void SendButton(String text) throws InterruptedException, IOException {
         User.text = text;
         User.sendButtonPressed = true;
-        Log.d("User","Send button pressed");
+//        Log.d("User","Send button pressed");
     }
 
     public static void setBackButton(boolean backButton) {
         User.backButton = backButton;
-        Log.d("User","Back button pressed");
+//        Log.d("User","Back button pressed");
+    }
+
+    public static String getUserId() {
+        return Integer.toString(id);
     }
 
     // Check if the current broker is the correct one
     // Otherwise close the current connection and connect to the right one
     private void connectToMatchedBroker(String matchedBrokerIp, int matchedBrokerPort) throws IOException {
         if (!Objects.equals(brokerIp, matchedBrokerIp) || !Objects.equals(brokerPort, matchedBrokerPort)) {
-//            counter = 0;
             inUser.close();
             outUser.close();
             inPublisher.close();
@@ -225,7 +220,7 @@ public class User implements Serializable {
             requestSocketUser.close();
             requestSocketPublisher.close();
             requestSocketConsumer.close();
-            System.out.println("\033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
+//            System.out.println("\033[3mConnection to broker: " + brokerIp + " on port: " + brokerPort + " closed\033[0m");
             brokerIp = matchedBrokerIp;
             brokerPort = matchedBrokerPort;
             requestSocketUser = new Socket(brokerIp, brokerPort);
@@ -237,7 +232,7 @@ public class User implements Serializable {
             inPublisher = new ObjectInputStream(requestSocketPublisher.getInputStream());
             outConsumer = new ObjectOutputStream(requestSocketConsumer.getOutputStream());
             inConsumer = new ObjectInputStream(requestSocketConsumer.getInputStream());
-            System.out.println("\033[3mConnected to broker: " + brokerIp + " on port: " + brokerPort + "\033[0m");
+//            System.out.println("\033[3mConnected to broker: " + brokerIp + " on port: " + brokerPort + "\033[0m");
             firstConnection = false;
             outUser.writeInt(id); // 1U
             outUser.flush();

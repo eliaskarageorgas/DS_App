@@ -24,8 +24,8 @@ public class Message {
         this.text = text;
     }
 
-    public int getSender() {
-        return sender;
+    public String getSender() {
+        return Integer.toString(sender);
     }
 
     public void setSender(int sender) {

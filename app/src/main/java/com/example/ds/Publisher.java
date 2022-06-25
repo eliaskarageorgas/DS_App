@@ -7,13 +7,10 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.io.*;
 import java.net.*;
-import java.util.regex.Pattern;
 
 public class Publisher extends Thread {
     private static String text;
@@ -27,7 +24,7 @@ public class Publisher extends Thread {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private static void push() throws IOException {
-        Log.d("Publisher", "Push started successfully");
+//        Log.d("Publisher", "Push started successfully");
         outPublisher.writeInt(topicCode); // 2P
         outPublisher.flush();
         byte[] data = text.getBytes(StandardCharsets.UTF_8);
@@ -75,7 +72,7 @@ public class Publisher extends Thread {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static void messageSend(String text) throws IOException {
         Publisher.text = text;
-        Log.d("Publisher", "Sending message to start actions for publishers.");
+//        Log.d("Publisher", "Sending message to start actions for publishers.");
         outPublisher.writeBoolean(true); //1P
         outPublisher.flush();
         push();

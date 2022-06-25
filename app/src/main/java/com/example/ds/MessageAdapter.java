@@ -1,10 +1,10 @@
 package com.example.ds;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,14 +32,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         Message currentMessage = messagesList.get(position);
-        if(listItem == null)
+        Log.d("MessageAdapter", "Before null");
+        if(listItem == null) {
+            Log.d("MessageAdapter", "After null");
             //Check who sends the message
-            if (currentMessage.getSender() == 1)
-                listItem = LayoutInflater.from(context).inflate(R.layout.left_messages, parent,false);
-            else
-                listItem = LayoutInflater.from(context).inflate(R.layout.right_messages, parent,false);
+            Log.d("MessageAdapter", currentMessage.getSender());
+            if (!Objects.equals(currentMessage.getSender(), User.getUserId())) {
+                Log.d("MessageAdapter", "first if");
+                listItem = LayoutInflater.from(context).inflate(R.layout.left_messages, parent, false);
+            } else
+                listItem = LayoutInflater.from(context).inflate(R.layout.right_messages, parent, false);
+        }
 
-        if (currentMessage.getSender() == 1) {
+        Log.d("MessageAdapter", currentMessage.getSender());
+        if (!Objects.equals(currentMessage.getSender(), User.getUserId())) {
+            Log.d("MessageAdapter", "second if");
             View view = listItem.findViewById(R.id.profilePic);
             Drawable bubble = view.getBackground();
             bubble.mutate().setColorFilter(Color.parseColor(currentMessage.getSenderColour()), PorterDuff.Mode.MULTIPLY);

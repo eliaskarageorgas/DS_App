@@ -42,12 +42,9 @@ public class TopicsActivity extends AppCompatActivity {
         ArrayList<Topic> topicList = new ArrayList<>();
         Random rand = new Random();
         for (String topic: userTopics) {
-            float r = rand.nextFloat();
-            float g = rand.nextFloat();
-            float b = rand.nextFloat();
-//            int intColor = Color.rgb(r, g, b);
-//            String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
-            topicList.add(new Topic(topic, "#c615e2"));
+            int random_int = rand.nextInt(0xffffff + 1);
+            String stringColor = String.format("#%06X", random_int);
+            topicList.add(new Topic(topic, stringColor));
         }
         topicAdapter = new TopicAdapter(this, topicList);
         listView.setAdapter(topicAdapter);
@@ -63,7 +60,7 @@ public class TopicsActivity extends AppCompatActivity {
 
     public static void wakeUserThread(String topicName) {
         synchronized (lock) {
-            Log.d("TopicsActivity", "lock");
+//            Log.d("TopicsActivity", "lock");
             lock.notify();
             topicString = topicName;
         }

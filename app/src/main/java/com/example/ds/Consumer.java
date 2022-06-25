@@ -1,6 +1,5 @@
 package com.example.ds;
 
-import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 
@@ -8,7 +7,6 @@ import androidx.annotation.RequiresApi;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -89,11 +87,8 @@ public class Consumer extends Thread implements Serializable {
 
         Message m;
         if (currentId != publisherId) {
-            float r = rand.nextFloat();
-            float g = rand.nextFloat();
-            float b = rand.nextFloat();
-            int intColor = Color.rgb(r, g, b);
-            String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
+            int random_int = rand.nextInt(0xffffff + 1);
+            String stringColor = String.format("#%06X", random_int);
             m = new Message(messageText, publisherId, stringColor);
         } else {
             m = new Message(messageText);
@@ -146,11 +141,8 @@ public class Consumer extends Thread implements Serializable {
 
             Message m;
             if (currentId != publisherId) {
-                float r = rand.nextFloat();
-                float g = rand.nextFloat();
-                float b = rand.nextFloat();
-                int intColor = Color.rgb(r, g, b);
-                String stringColor = String.format("#%06X", (0xFFFFFF & intColor));
+                int random_number = rand.nextInt(0xffffff + 1);
+                String stringColor = String.format("#%06X", random_number);
                 m = new Message(messageText, publisherId, stringColor);
             } else {
                 m = new Message(messageText);
