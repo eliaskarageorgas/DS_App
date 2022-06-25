@@ -12,8 +12,9 @@ public class Message {
         this.senderColour = senderColor;
     }
 
-    public Message(String text) {
+    public Message(String text, int sender) {
         this.text = text;
+        this.sender = sender;
     }
 
     public String getText() {

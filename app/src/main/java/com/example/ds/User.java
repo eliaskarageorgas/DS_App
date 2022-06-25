@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 public class User implements Serializable {
     private static int brokerPort;
@@ -57,6 +58,9 @@ public class User implements Serializable {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void connect() {
         try {
+            Random rand = new Random();
+            int random_int = rand.nextInt(0xffffff + 1);
+            String userColor = String.format("#%06X", random_int);
 //            Log.d("User", "Connect");
             requestSocketUser = new Socket(brokerIp, brokerPort);
             requestSocketPublisher = new Socket(brokerIp, brokerPort);
@@ -106,7 +110,7 @@ public class User implements Serializable {
                     break;
                 }
 
-                c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id);
+                c = new Consumer(brokerIp, brokerPort, topicCode, requestSocketConsumer, outConsumer, inConsumer, id, userColor);
                 c.start();
                 p = new Publisher(brokerIp, brokerPort, topicCode, requestSocketPublisher,
                         outPublisher, inPublisher, id);
@@ -157,11 +161,9 @@ public class User implements Serializable {
             }
         } catch (UnknownHostException unknownHost) {
 //            System.err.println("\033[3mYou are trying to connect to an unknown host!\033[0m");
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (ClassNotFoundException | IOException | InterruptedException e) {
 //            System.out.println("\033[3mAn error occurred while trying to connect to host: " + brokerIp + " on port: " +
 //                    brokerPort + ". Check the IP address and the port.\033[0m");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             try {

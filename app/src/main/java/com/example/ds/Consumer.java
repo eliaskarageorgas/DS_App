@@ -8,7 +8,6 @@ import androidx.annotation.RequiresApi;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Consumer extends Thread implements Serializable {
     private String brokerIp;
@@ -20,6 +19,7 @@ public class Consumer extends Thread implements Serializable {
     private ArrayList<byte[]> history = new ArrayList<>();
     private int pointerChunk;
     private int currentId;
+    private String userColor;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void run() {
@@ -66,7 +66,6 @@ public class Consumer extends Thread implements Serializable {
         byte[] completeMessage = new byte[512 * 1024 * blockCount];
         int i;
         int j = 0;
-        Random rand = new Random();
         pointerChunk++;
 
         // Converting publisherId to integer
@@ -74,6 +73,7 @@ public class Consumer extends Thread implements Serializable {
         for (byte b : history.get(pointerChunk))
             publisherId += b;
         pointerChunk++;
+//        System.out.println("publisherId " + publisherId);
 
         for (i = pointerChunk; i < pointerChunk + blockCount; i++) {
             for (byte b: history.get(i)) {
@@ -87,13 +87,14 @@ public class Consumer extends Thread implements Serializable {
 
         Message m;
         if (currentId != publisherId) {
-            int random_int = rand.nextInt(0xffffff + 1);
-            String stringColor = String.format("#%06X", random_int);
-            m = new Message(messageText, publisherId, stringColor);
+//            Log.d("Consumer", "Another user");
+            m = new Message(messageText, publisherId, userColor);
         } else {
-            m = new Message(messageText);
+//            Log.d("Consumer", "Same user");
+            m = new Message(messageText, publisherId);
         }
         Log.d("Consumer", m.getText());
+//        Log.d("Consumer", m.getSender());
         ChatActivity.newMessage(m);
     }
 
@@ -115,7 +116,6 @@ public class Consumer extends Thread implements Serializable {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void recreateAllData() throws IOException {
         int currentChunk = 0;
-        Random rand = new Random();
         while (currentChunk < history.size()) {
             // Converting blockCount to integer
             int blockCount = 0;
@@ -141,18 +141,16 @@ public class Consumer extends Thread implements Serializable {
 
             Message m;
             if (currentId != publisherId) {
-                int random_number = rand.nextInt(0xffffff + 1);
-                String stringColor = String.format("#%06X", random_number);
-                m = new Message(messageText, publisherId, stringColor);
+                m = new Message(messageText, publisherId, userColor);
             } else {
-                m = new Message(messageText);
+                m = new Message(messageText, publisherId);
             }
             currentChunk += blockCount;
             ChatActivity.newMessage(m);
         }
     }
 
-    Consumer(String ip, int port, int topicCode, Socket requestSocket, ObjectOutputStream out, ObjectInputStream in, int currentId) {
+    Consumer(String ip, int port, int topicCode, Socket requestSocket, ObjectOutputStream out, ObjectInputStream in, int currentId, String userColor) {
         this.brokerIp = ip;
         this.brokerPort = port;
         this.topicCode = topicCode;
@@ -160,5 +158,6 @@ public class Consumer extends Thread implements Serializable {
         this.outConsumer = out;
         this.inConsumer = in;
         this.currentId = currentId;
+        this.userColor = userColor;
     }
 }

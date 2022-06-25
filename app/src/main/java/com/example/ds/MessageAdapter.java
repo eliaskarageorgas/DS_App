@@ -32,21 +32,23 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         Message currentMessage = messagesList.get(position);
-        Log.d("MessageAdapter", "Before null");
+//        Log.d("MessageAdapter", "Before null");
         if(listItem == null) {
-            Log.d("MessageAdapter", "After null");
+//            Log.d("MessageAdapter", "After null");
             //Check who sends the message
-            Log.d("MessageAdapter", currentMessage.getSender());
+//            Log.d("CurrentMessage.getSender()", currentMessage.getSender());
+//            Log.d("User.getUserId()", User.getUserId());
             if (!Objects.equals(currentMessage.getSender(), User.getUserId())) {
-                Log.d("MessageAdapter", "first if");
+//                Log.d("MessageAdapter", "first if");
                 listItem = LayoutInflater.from(context).inflate(R.layout.left_messages, parent, false);
             } else
                 listItem = LayoutInflater.from(context).inflate(R.layout.right_messages, parent, false);
         }
 
-        Log.d("MessageAdapter", currentMessage.getSender());
+//        Log.d("CurrentMessage.getSender()", currentMessage.getSender());
+//        Log.d("User.getUserId()", User.getUserId());
         if (!Objects.equals(currentMessage.getSender(), User.getUserId())) {
-            Log.d("MessageAdapter", "second if");
+//            Log.d("MessageAdapter", "second if");
             View view = listItem.findViewById(R.id.profilePic);
             Drawable bubble = view.getBackground();
             bubble.mutate().setColorFilter(Color.parseColor(currentMessage.getSenderColour()), PorterDuff.Mode.MULTIPLY);

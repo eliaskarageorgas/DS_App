@@ -2,6 +2,7 @@ package com.example.ds;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,7 +32,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        EditText messageBox = (EditText) findViewById(R.id.message_box);
+        EditText messageBox = findViewById(R.id.message_box);
 
         ImageButton sendButton = findViewById(R.id.send_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +61,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public static void newMessage(Message message) {
         messageList.add(message);
+//        Log.d("ChatActivity", message.getSender());
     }
 }
 
