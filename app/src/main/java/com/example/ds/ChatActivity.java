@@ -56,27 +56,33 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(this, messageList);
         listView.setAdapter(messageAdapter);
 
+        // Gallery button
         ImageButton galleryButton = findViewById(R.id.gallery_button);
         galleryButton.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
                 Log.d("ChatActivity", "GalleryButton");
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                //startActivityForResult(intent, 3);
+                Intent galleryIntent = new Intent();
+                galleryIntent.setAction(Intent.ACTION_VIEW);
+                galleryIntent.setType("image/*");
+                galleryIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(galleryIntent);
+            }
+        });
+
+        // Camera button
+        ImageButton cameraButton = findViewById(R.id.camera_button);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View v) {
+                Log.d("ChatActivity", "GalleryButton");
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivity(cameraIntent);
             }
         });
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode == RESULT_OK && data != null) {
-//            Uri selectedImage = data.getData();
-//            ImageView imageView = findViewById(R.id.imageView);
-//            imageView.setImageURI(selectedImage);
-//        }
-//    }
 
     @Override
     public void onBackPressed() {
@@ -90,5 +96,3 @@ public class ChatActivity extends AppCompatActivity {
 //        Log.d("ChatActivity", message.getSender());
     }
 }
-
-// Create specific color for each user
